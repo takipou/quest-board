@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>冒険者の集会所 — 日程調整</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Kosugi+Maru&display=swap');
+:root{--forest-dark:#1a2e1a;--forest-mid:#2d4a2d;--leaf-green:#6db86b;--sunbeam:#f5e6a3;--sunbeam-bright:#ffe066;--bark-dark:#5c4a1e;--ink:#2a1f0e;--hp-red:#e74c3c}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Kosugi Maru',sans-serif;background:var(--forest-dark);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* BG */
+.forest-bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;background:linear-gradient(180deg,#0d1f0d 0%,#1a2e1a 20%,#2d4a2d 50%,#1a3a1a 80%,#0d1f0d 100%)}
+.forest-bg::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 120px 300px at 15% 30%,rgba(245,230,163,.08) 0%,transparent 70%),radial-gradient(ellipse 80px 400px at 45% 20%,rgba(245,230,163,.06) 0%,transparent 70%),radial-gradient(ellipse 100px 350px at 75% 25%,rgba(245,230,163,.07) 0%,transparent 70%);animation:sun 8s ease-in-out infinite alternate}
+@keyframes sun{0%{opacity:.6}100%{opacity:1}}
+.firefly{position:fixed;width:4px;height:4px;background:var(--sunbeam-bright);border-radius:50%;box-shadow:0 0 6px var(--sunbeam-bright),0 0 12px var(--sunbeam);animation:ff 6s ease-in-out infinite;z-index:1;pointer-events:none}
+@keyframes ff{0%,100%{opacity:0;transform:translateY(0)}25%{opacity:1}50%{opacity:.7;transform:translateY(-30px) translateX(15px)}75%{opacity:1}}
+
+.main-container{position:relative;z-index:10;max-width:780px;margin:0 auto;padding:20px 16px 60px}
+
+/* HEADER */
+.rpg-header{text-align:center;padding:24px 20px 10px}
+.rpg-header h1{font-family:'DotGothic16',sans-serif;font-size:26px;color:var(--sunbeam);text-shadow:2px 2px 0 var(--forest-dark),0 0 20px rgba(245,230,163,.3);letter-spacing:4px;margin-bottom:4px}
+.rpg-header .subtitle{font-family:'DotGothic16',sans-serif;font-size:12px;color:var(--leaf-green);letter-spacing:2px}
+.pixel-scene{display:flex;justify-content:center;gap:12px;margin:14px 0 6px;flex-wrap:wrap}
+.pixel-char{image-rendering:pixelated;width:44px;height:44px;animation:bounce 2s ease-in-out infinite}
+.pixel-char:nth-child(2){animation-delay:.3s}.pixel-char:nth-child(3){animation-delay:.6s}.pixel-char:nth-child(4){animation-delay:.9s}.pixel-char:nth-child(5){animation-delay:.15s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* PARCHMENT */
+.parchment-wrap{position:relative;margin:18px 0;filter:drop-shadow(3px 4px 6px rgba(0,0,0,.45))}
+.parchment-card{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E"),radial-gradient(ellipse at 20% 15%,rgba(180,130,50,.18) 0%,transparent 45%),radial-gradient(ellipse at 85% 10%,rgba(160,110,30,.15) 0%,transparent 40%),radial-gradient(ellipse at 70% 85%,rgba(170,120,40,.12) 0%,transparent 45%),radial-gradient(ellipse at 10% 80%,rgba(150,100,20,.1) 0%,transparent 40%),linear-gradient(175deg,#e6ceA0 0%,#dfc490 15%,#e8d4a8 30%,#d8bc82 50%,#e2cfa0 70%,#dac48a 85%,#e0cc98 100%);padding:28px 24px;position:relative;border:none;border-radius:0;clip-path:polygon(2% 1%,5% 0%,8% 1.5%,12% .5%,16% 2%,20% 0%,25% 1%,28% .5%,32% 1.5%,38% 0%,42% 1%,48% .5%,52% 1.5%,58% 0%,62% 1%,68% .5%,72% 1.5%,78% 0%,82% 1%,88% .5%,92% 2%,95% .5%,98% 1.5%,100% 0%,100% 3%,99% 6%,100% 10%,99.5% 15%,100% 20%,99% 25%,100% 30%,99.5% 36%,100% 42%,99% 48%,100% 54%,99.5% 60%,100% 66%,99% 72%,100% 78%,99.5% 84%,100% 90%,99% 95%,100% 98%,98% 100%,95% 99%,92% 100%,88% 99%,82% 100%,78% 99%,72% 100%,68% 99%,62% 100%,58% 99%,52% 100%,48% 99%,42% 100%,38% 99%,32% 100%,28% 99%,22% 100%,18% 99%,12% 100%,8% 99%,5% 100%,2% 99%,0% 100%,0% 97%,1% 94%,0% 90%,.5% 84%,0% 78%,1% 72%,0% 66%,.5% 60%,0% 54%,1% 48%,0% 42%,.5% 36%,0% 30%,1% 25%,0% 20%,.5% 15%,0% 10%,1% 6%,0% 3%)}
+.parchment-card::before{content:'';position:absolute;z-index:1;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 0% 0%,rgba(120,70,10,.2) 0%,transparent 30%),radial-gradient(ellipse at 100% 0%,rgba(130,80,15,.18) 0%,transparent 28%),radial-gradient(ellipse at 0% 100%,rgba(110,65,10,.15) 0%,transparent 30%),radial-gradient(ellipse at 100% 100%,rgba(120,70,10,.2) 0%,transparent 28%);pointer-events:none}
+.parchment-card::after{content:'';position:absolute;z-index:1;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle 30px at 75% 20%,rgba(160,110,30,.12) 0%,transparent 100%),radial-gradient(circle 20px at 25% 70%,rgba(140,90,20,.1) 0%,transparent 100%);pointer-events:none}
+.parchment-card>*{position:relative;z-index:2}
+
+.section-title{font-family:'DotGothic16',sans-serif;font-size:15px;color:var(--bark-dark);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:var(--bark-dark);margin-bottom:5px;font-weight:bold}
+.rpg-input{width:100%;padding:10px 14px;font-family:'Kosugi Maru',sans-serif;font-size:14px;border:1px solid #a08040;border-radius:2px;background:rgba(255,250,235,.6);color:var(--ink);outline:none;transition:border-color .15s}
+.rpg-input:focus{border-color:var(--leaf-green);box-shadow:0 0 0 3px rgba(109,184,107,.2)}
+.rpg-input::placeholder{color:#a09070}
+.rpg-input.err{border-color:var(--hp-red);box-shadow:0 0 0 3px rgba(231,76,60,.2)}
+.date-range-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.date-range-row input[type="date"]{flex:1;min-width:140px;padding:10px 12px;font-family:'Kosugi Maru',sans-serif;font-size:14px;border:1px solid #a08040;border-radius:2px;background:rgba(255,250,235,.6);color:var(--ink);cursor:pointer}
+.date-range-row input[type="date"]:focus{border-color:var(--leaf-green);box-shadow:0 0 0 3px rgba(109,184,107,.2);outline:none}
+.sep{font-family:'DotGothic16',sans-serif;color:var(--bark-dark);font-size:14px}
+.time-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.preset-btn{padding:8px 13px;font-family:'DotGothic16',sans-serif;font-size:12px;border:1px solid #a08040;border-radius:2px;background:rgba(220,196,142,.5);color:#5c4a1e;cursor:pointer;transition:all .15s}
+.preset-btn:hover{background:rgba(245,230,163,.8);transform:scale(1.05)}
+.preset-btn.active{background:var(--leaf-green);color:#fff;border-color:var(--forest-mid);box-shadow:1px 1px 3px rgba(0,0,0,.3)}
+.custom-time-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.custom-time-row input[type="time"]{padding:8px 10px;font-family:'Kosugi Maru',sans-serif;font-size:14px;border:1px solid #a08040;border-radius:2px;background:rgba(255,250,235,.6);color:var(--ink)}
+.day-toggles{display:flex;gap:6px;flex-wrap:wrap}
+.day-toggle{width:42px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'DotGothic16',sans-serif;font-size:13px;border:1px solid #a08040;border-radius:2px;background:var(--leaf-green);color:#fff;cursor:pointer;transition:all .15s}
+.day-toggle.excluded{background:rgba(180,170,150,.5);color:#999;border-color:#b0a080;text-decoration:line-through}
+.day-toggle:hover{transform:scale(1.08)}
+.slots-preview{max-height:220px;overflow-y:auto;margin-top:10px;padding:8px;background:rgba(255,255,255,.3);border-radius:2px;border:1px solid rgba(160,128,64,.3)}
+.slot-chip{display:inline-block;padding:5px 10px;margin:3px;font-family:'DotGothic16',sans-serif;font-size:11px;background:var(--forest-mid);color:var(--sunbeam);border-radius:2px;cursor:pointer;transition:all .15s;border:1px solid var(--leaf-green)}
+.slot-chip:hover{background:var(--hp-red);border-color:#c0392b}
+.slot-chip.removed{opacity:.3;text-decoration:line-through}
+.slot-count{font-family:'DotGothic16',sans-serif;font-size:12px;color:var(--bark-dark);margin-top:8px}
+
+/* BUTTONS */
+.rpg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 26px;font-family:'DotGothic16',sans-serif;font-size:15px;border:3px solid;border-radius:4px;cursor:pointer;transition:all .15s;letter-spacing:2px}
+.rpg-btn:active{transform:translateY(2px)}
+.rpg-btn-primary{background:linear-gradient(180deg,var(--leaf-green) 0%,#4a8a48 100%);color:#fff;border-color:var(--forest-dark);box-shadow:4px 4px 0 var(--forest-dark);text-shadow:1px 1px 0 var(--forest-dark)}
+.rpg-btn-primary:hover{background:linear-gradient(180deg,#7dc87b 0%,var(--leaf-green) 100%)}
+.rpg-btn-gold{background:linear-gradient(180deg,var(--sunbeam-bright) 0%,#d4a017 100%);color:var(--ink);border-color:var(--bark-dark);box-shadow:4px 4px 0 var(--bark-dark)}
+.rpg-btn-gold:hover{background:linear-gradient(180deg,#fff08a 0%,var(--sunbeam-bright) 100%)}
+.rpg-btn-sm{padding:8px 14px;font-size:12px}
+.btn-row{display:flex;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+
+/* URL OUTPUT */
+.url-output-area{margin-top:16px;padding:16px;background:var(--forest-dark);border:2px dashed rgba(109,184,107,.4);border-radius:4px;min-height:60px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.url-output-area.has-url{border-color:var(--leaf-green);border-style:solid;background:rgba(26,46,26,.95)}
+.url-text{flex:1;min-width:200px;font-family:'DotGothic16',monospace;font-size:12px;color:var(--sunbeam);word-break:break-all;line-height:1.6;user-select:all}
+.url-placeholder{flex:1;font-family:'DotGothic16',sans-serif;font-size:12px;color:rgba(109,184,107,.4);text-align:center}
+.copy-btn{padding:10px 18px;font-family:'DotGothic16',sans-serif;font-size:13px;border:2px solid var(--leaf-green);border-radius:4px;background:var(--forest-mid);color:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;opacity:.4;pointer-events:none}
+.copy-btn.enabled{opacity:1;pointer-events:auto}
+.copy-btn.enabled:hover{background:var(--leaf-green)}
+.copy-btn.copied{background:var(--leaf-green);border-color:var(--sunbeam-bright)}
+
+/* TABLE */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:12px}
+.response-grid{width:100%;border-collapse:collapse;font-size:13px}
+.response-grid th,.response-grid td{border:1px solid #a08040;padding:8px 6px;text-align:center;font-family:'DotGothic16',sans-serif}
+.response-grid th{background:var(--forest-mid);color:var(--sunbeam);font-size:11px;position:sticky;top:0}
+.response-grid td{background:rgba(255,250,235,.6);cursor:pointer;transition:all .15s}
+.response-grid td:hover{background:var(--sunbeam)}
+.response-grid td.sel-ok{background:#a8e6a8;color:var(--forest-dark)}
+.response-grid td.sel-maybe{background:#ffe4a0;color:var(--bark-dark)}
+.response-grid td.sel-ng{background:#f4a0a0;color:#5a1a1a}
+.response-grid .name-col{background:rgba(220,196,142,.5);font-weight:bold;min-width:70px;cursor:default}
+.response-grid .name-col:hover{background:rgba(220,196,142,.5)}
+.legend{display:flex;gap:14px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-family:'DotGothic16',sans-serif;font-size:12px;color:var(--bark-dark)}
+.legend-dot{width:16px;height:16px;border-radius:2px;border:1px solid #a08040}
+
+/* MSG BOX */
+.msg-box{background:var(--forest-dark);border:3px solid var(--sunbeam);border-radius:4px;padding:14px 18px;margin:14px 0;color:var(--sunbeam);font-family:'DotGothic16',sans-serif;font-size:13px;line-height:1.8}
+.msg-box .speaker{color:var(--leaf-green);margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.speaker-icon{width:28px;height:28px;image-rendering:pixelated;flex-shrink:0}
+.help-text{font-size:11px;color:#8a7a5a;margin-top:4px}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--forest-dark);color:var(--sunbeam);padding:16px 32px;border-radius:4px;border:3px solid var(--sunbeam-bright);font-family:'DotGothic16',sans-serif;font-size:15px;box-shadow:0 4px 30px rgba(0,0,0,.6);z-index:1000;opacity:0;transition:all .3s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* SECTION DIVIDER */
+.section-divider{text-align:center;margin:30px 0 10px;font-family:'DotGothic16',sans-serif;font-size:14px;color:var(--sunbeam);letter-spacing:3px;text-shadow:0 0 10px rgba(245,230,163,.3)}
+
+/* HIDDEN */
+.hidden{display:none!important}
+
+@media(max-width:500px){.rpg-header h1{font-size:20px;letter-spacing:2px}.parchment-card{padding:20px 16px}.date-range-row{flex-direction:column;gap:6px}.pixel-char{width:34px;height:34px}.rpg-btn{padding:11px 18px;font-size:13px}}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#d4c495;border-radius:4px}::-webkit-scrollbar-thumb{background:#8b6914;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="forest-bg"></div>
+<div class="firefly" style="top:20%;left:10%;animation-delay:0s;animation-duration:5s"></div>
+<div class="firefly" style="top:40%;left:80%;animation-delay:1.5s;animation-duration:7s"></div>
+<div class="firefly" style="top:60%;left:30%;animation-delay:3s;animation-duration:6s"></div>
+<div class="firefly" style="top:30%;left:60%;animation-delay:.5s;animation-duration:8s"></div>
+<div class="firefly" style="top:70%;left:50%;animation-delay:2s;animation-duration:5.5s"></div>
+<div class="firefly" style="top:15%;left:45%;animation-delay:4s;animation-duration:6.5s"></div>
+<div class="firefly" style="top:80%;left:20%;animation-delay:1s;animation-duration:7.5s"></div>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+<symbol id="px-chief" viewBox="0 0 16 16"><rect x="5" y="0" width="6" height="1" fill="#ddd"/><rect x="4" y="1" width="8" height="2" fill="#eee"/><rect x="5" y="3" width="6" height="1" fill="#f5c6a0"/><rect x="5" y="4" width="2" height="1" fill="#333"/><rect x="9" y="4" width="2" height="1" fill="#333"/><rect x="5" y="5" width="6" height="1" fill="#f5c6a0"/><rect x="6" y="6" width="4" height="2" fill="#eee"/><rect x="7" y="8" width="2" height="1" fill="#ddd"/><rect x="4" y="6" width="8" height="1" fill="#8b5e3c"/><rect x="3" y="7" width="10" height="3" fill="#8b5e3c"/><rect x="2" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="13" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="14" y="6" width="1" height="5" fill="#8b4513"/><rect x="14" y="5" width="1" height="1" fill="#f1c40f"/><rect x="4" y="10" width="8" height="2" fill="#6d4c2a"/><rect x="5" y="12" width="2" height="1" fill="#5c3a1e"/><rect x="9" y="12" width="2" height="1" fill="#5c3a1e"/></symbol>
+<symbol id="px-mage" viewBox="0 0 16 16"><rect x="6" y="0" width="4" height="1" fill="#9b59b6"/><rect x="5" y="1" width="6" height="1" fill="#9b59b6"/><rect x="7" y="0" width="2" height="1" fill="#f1c40f"/><rect x="5" y="2" width="6" height="1" fill="#9b59b6"/><rect x="5" y="3" width="6" height="1" fill="#f5c6a0"/><rect x="5" y="4" width="2" height="1" fill="#222"/><rect x="9" y="4" width="2" height="1" fill="#222"/><rect x="5" y="5" width="6" height="1" fill="#f5c6a0"/><rect x="4" y="6" width="8" height="1" fill="#8e44ad"/><rect x="3" y="7" width="10" height="3" fill="#8e44ad"/><rect x="2" y="7" width="1" height="1" fill="#f5c6a0"/><rect x="0" y="7" width="1" height="3" fill="#8b4513"/><rect x="1" y="8" width="1" height="1" fill="#f1c40f"/><rect x="4" y="10" width="8" height="2" fill="#8e44ad"/><rect x="5" y="12" width="2" height="1" fill="#6d3a8a"/><rect x="9" y="12" width="2" height="1" fill="#6d3a8a"/></symbol>
+<symbol id="px-warrior" viewBox="0 0 16 16"><rect x="5" y="1" width="6" height="1" fill="#888"/><rect x="4" y="2" width="8" height="1" fill="#888"/><rect x="5" y="3" width="6" height="1" fill="#f5c6a0"/><rect x="5" y="4" width="2" height="1" fill="#222"/><rect x="9" y="4" width="2" height="1" fill="#222"/><rect x="5" y="5" width="6" height="1" fill="#f5c6a0"/><rect x="7" y="5" width="2" height="1" fill="#e74c3c"/><rect x="4" y="6" width="8" height="1" fill="#3498db"/><rect x="4" y="7" width="8" height="2" fill="#3498db"/><rect x="3" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="12" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="13" y="6" width="1" height="4" fill="#aaa"/><rect x="4" y="9" width="8" height="2" fill="#2c3e50"/><rect x="4" y="11" width="3" height="2" fill="#8b4513"/><rect x="9" y="11" width="3" height="2" fill="#8b4513"/></symbol>
+<symbol id="px-healer" viewBox="0 0 16 16"><rect x="5" y="1" width="6" height="2" fill="#f39c12"/><rect x="5" y="3" width="6" height="1" fill="#f5c6a0"/><rect x="5" y="4" width="2" height="1" fill="#222"/><rect x="9" y="4" width="2" height="1" fill="#222"/><rect x="5" y="5" width="6" height="1" fill="#f5c6a0"/><rect x="4" y="6" width="8" height="4" fill="#fff"/><rect x="7" y="7" width="2" height="1" fill="#e74c3c"/><rect x="6" y="8" width="4" height="1" fill="#e74c3c"/><rect x="7" y="9" width="2" height="1" fill="#e74c3c"/><rect x="3" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="12" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="4" y="10" width="8" height="2" fill="#fff"/><rect x="5" y="12" width="2" height="1" fill="#ddd"/><rect x="9" y="12" width="2" height="1" fill="#ddd"/></symbol>
+<symbol id="px-ranger" viewBox="0 0 16 16"><rect x="5" y="1" width="6" height="1" fill="#27ae60"/><rect x="4" y="2" width="8" height="1" fill="#27ae60"/><rect x="5" y="3" width="6" height="1" fill="#f5c6a0"/><rect x="5" y="4" width="2" height="1" fill="#222"/><rect x="9" y="4" width="2" height="1" fill="#222"/><rect x="4" y="4" width="1" height="1" fill="#27ae60"/><rect x="5" y="5" width="6" height="1" fill="#f5c6a0"/><rect x="4" y="6" width="8" height="4" fill="#2ecc71"/><rect x="3" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="12" y="7" width="1" height="2" fill="#f5c6a0"/><rect x="13" y="8" width="1" height="3" fill="#8b4513"/><rect x="14" y="6" width="1" height="2" fill="#8b4513"/><rect x="4" y="10" width="8" height="2" fill="#1a6e36"/><rect x="5" y="12" width="2" height="1" fill="#8b4513"/><rect x="9" y="12" width="2" height="1" fill="#8b4513"/></symbol>
+<symbol id="px-slime" viewBox="0 0 16 16"><rect x="4" y="5" width="8" height="1" fill="#2ecc71"/><rect x="3" y="6" width="10" height="1" fill="#2ecc71"/><rect x="2" y="7" width="12" height="2" fill="#27ae60"/><rect x="5" y="7" width="2" height="1" fill="#fff"/><rect x="9" y="7" width="2" height="1" fill="#fff"/><rect x="5" y="8" width="1" height="1" fill="#222"/><rect x="10" y="8" width="1" height="1" fill="#222"/><rect x="7" y="9" width="2" height="1" fill="#1a6e36"/><rect x="2" y="9" width="12" height="2" fill="#27ae60"/><rect x="3" y="11" width="10" height="1" fill="#2ecc71"/><rect x="4" y="12" width="8" height="1" fill="#2ecc71"/></symbol>
+<symbol id="px-scroll" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" fill="#d4a017"/><rect x="4" y="3" width="8" height="10" fill="#f5e6a3"/><rect x="5" y="5" width="6" height="1" fill="#5c4a1e"/><rect x="5" y="7" width="4" height="1" fill="#5c4a1e"/><rect x="5" y="9" width="5" height="1" fill="#5c4a1e"/></symbol>
+</svg>
+
+<div class="main-container">
+<div class="rpg-header">
+  <h1>⚔ 冒険者の集会所 ⚔</h1>
+  <div class="subtitle">〜 木漏れ日の村・日程調整の間 〜</div>
+  <div class="pixel-scene">
+    <svg class="pixel-char"><use href="#px-warrior"/></svg>
+    <svg class="pixel-char"><use href="#px-mage"/></svg>
+    <svg class="pixel-char"><use href="#px-healer"/></svg>
+    <svg class="pixel-char"><use href="#px-ranger"/></svg>
+    <svg class="pixel-char"><use href="#px-slime"/></svg>
+  </div>
+</div>
+
+<!-- ===== HOST: CREATE SECTION ===== -->
+<div id="create-section">
+  <div class="section-divider">― ✦ イベント作成 ✦ ―</div>
+
+  <div class="parchment-wrap"><div class="parchment-card">
+    <div class="section-title">📜 クエスト情報</div>
+    <div class="form-group"><label>イベント名</label><input type="text" class="rpg-input" id="event-name" placeholder="例：第3回プロジェクト定例会議"></div>
+    <div class="form-group"><label>メモ（任意）</label><input type="text" class="rpg-input" id="event-memo" placeholder="例：議題はQ2の進捗確認です"></div>
+  </div></div>
+
+  <div class="parchment-wrap"><div class="parchment-card">
+    <div class="section-title">📅 候補日の範囲</div>
+    <div class="msg-box"><div class="speaker"><svg class="speaker-icon"><use href="#px-chief"/></svg>村長：</div>日付の範囲を選ぶだけで候補日が自動生成されるぞ。<br>除外したい曜日はタップで外すのじゃ。</div>
+    <div class="form-group"><label>期間を指定</label><div class="date-range-row"><input type="date" id="date-start"><span class="sep">〜</span><input type="date" id="date-end"></div></div>
+    <div class="form-group"><label>含める曜日（タップで除外）</label>
+      <div class="day-toggles"><div class="day-toggle excluded" data-day="0">日</div><div class="day-toggle" data-day="1">月</div><div class="day-toggle" data-day="2">火</div><div class="day-toggle" data-day="3">水</div><div class="day-toggle" data-day="4">木</div><div class="day-toggle" data-day="5">金</div><div class="day-toggle excluded" data-day="6">土</div></div>
+    </div>
+  </div></div>
+
+  <div class="parchment-wrap"><div class="parchment-card">
+    <div class="section-title">⏰ 時間帯</div>
+    <div class="msg-box"><div class="speaker"><svg class="speaker-icon"><use href="#px-mage"/></svg>魔法使い：</div>よく使う時間帯をワンタップで選ぶのじゃ。</div>
+    <div class="form-group"><label>プリセット（複数選択可）</label>
+      <div class="time-presets">
+        <button class="preset-btn active" data-s="08:15" data-e="09:30">8:15-9:30</button>
+        <button class="preset-btn" data-s="10:00" data-e="11:00">10-11時</button>
+        <button class="preset-btn" data-s="11:00" data-e="12:00">11-12時</button>
+        <button class="preset-btn" data-s="13:00" data-e="14:00">13-14時</button>
+        <button class="preset-btn" data-s="15:00" data-e="16:00">15-16時</button>
+        <button class="preset-btn" data-s="16:00" data-e="17:00">16-17時</button>
+        <button class="preset-btn" data-s="00:00" data-e="23:59">終日</button>
+      </div>
+    </div>
+    <div class="form-group"><label>カスタム時間を追加</label>
+      <div class="custom-time-row"><input type="time" id="custom-start" value="10:00"><span class="sep">〜</span><input type="time" id="custom-end" value="11:00"><button class="rpg-btn rpg-btn-primary rpg-btn-sm" onclick="addCT()">追加</button></div>
+    </div>
+    <div id="ct-list" class="time-presets"></div>
+  </div></div>
+
+  <div class="parchment-wrap"><div class="parchment-card">
+    <div class="section-title">🗺 候補プレビュー</div>
+    <button class="rpg-btn rpg-btn-primary" onclick="genPreview()" style="width:100%">候補日をプレビュー</button>
+    <div id="preview-area"></div>
+    <div class="help-text" style="margin-top:8px">※ プレビューは任意。URL生成でも自動で作られます</div>
+  </div></div>
+
+  <!-- GENERATE BUTTON + URL OUTPUT -->
+  <div class="btn-row">
+    <button class="rpg-btn rpg-btn-gold" onclick="createEvent()" style="width:100%;max-width:420px">✦ 共有URLを生成する ✦</button>
+  </div>
+
+  <div class="parchment-wrap"><div class="parchment-card">
+    <div class="section-title">📋 共有URL</div>
+    <div class="url-output-area" id="url-area">
+      <div class="url-placeholder" id="url-placeholder">ここにURLが表示されます</div>
+      <div class="url-text hidden" id="url-text"></div>
+      <button class="copy-btn" id="copy-btn" onclick="copyUrl()">📋 コピー</button>
+    </div>
+    <div class="help-text">※ GitHub Pagesなどに公開後、このURLを仲間に送ると即回答画面が開きます</div>
+    <div class="btn-row" id="preview-respond-btn" style="display:none">
+      <button class="rpg-btn rpg-btn-primary rpg-btn-sm" onclick="previewRespond()">▼ 回答画面をプレビュー</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- ===== RESPOND SECTION (initially hidden, shown when URL loaded or preview clicked) ===== -->
+<div id="respond-section" class="hidden">
+  <div class="section-divider">― ✦ 回答する ✦ ―</div>
+
+  <div class="parchment-wrap"><div class="parchment-card">
+    <div class="section-title">📜 <span id="ev-name-display"></span></div>
+    <div id="ev-memo-box" class="msg-box hidden"><div class="speaker"><svg class="speaker-icon"><use href="#px-scroll"/></svg>クエスト詳細：</div><span id="ev-memo-display"></span></div>
+    <div class="form-group"><label>あなたの名前（冒険者名）</label><input type="text" class="rpg-input" id="resp-name" placeholder="名前を入力"></div>
+    <div class="msg-box"><div class="speaker"><svg class="speaker-icon"><use href="#px-chief"/></svg>村長：</div>各候補をタップで切り替えるのじゃ。<br>◯→△→✕ の順に変わるぞ！</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#a8e6a8"></div>◯ OK</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffe4a0"></div>△ 微妙</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f4a0a0"></div>✕ NG</div>
+    </div>
+    <div class="table-scroll"><table class="response-grid"><thead id="r-thead"></thead><tbody id="r-tbody"></tbody></table></div>
+    <div class="btn-row"><button class="rpg-btn rpg-btn-gold" onclick="submitResp()">回答を送信</button></div>
+  </div></div>
+
+  <div class="parchment-wrap hidden" id="results-wrap"><div class="parchment-card">
+    <div class="section-title">📊 みんなの回答</div>
+    <div class="table-scroll"><table class="response-grid"><thead id="res-thead"></thead><tbody id="res-tbody"></tbody></table></div>
+  </div></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let ev={name:'',memo:'',slots:[],responses:[]},ct=[],removed=new Set,sKey='';
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const t=new Date,w=new Date(t);w.setDate(t.getDate()+7);
+  document.getElementById('date-start').value=iso(t);
+  document.getElementById('date-end').value=iso(w);
+  document.querySelectorAll('.day-toggle').forEach(e=>e.addEventListener('click',()=>e.classList.toggle('excluded')));
+  document.querySelectorAll('.preset-btn[data-s]').forEach(b=>b.addEventListener('click',()=>b.classList.toggle('active')));
+  if(location.hash.startsWith('#e='))loadHash(location.hash);
+  addEventListener('hashchange',()=>{if(location.hash.startsWith('#e='))loadHash(location.hash)});
+});
+
+function iso(d){return d.toISOString().split('T')[0]}
+function fmtD(s){const d=new Date(s+'T00:00:00'),n=['日','月','火','水','木','金','土'];return`${d.getMonth()+1}/${d.getDate()}(${n[d.getDay()]})`}
+
+function addCT(){const s=document.getElementById('custom-start').value,e=document.getElementById('custom-end').value;if(!s||!e||ct.find(t=>t.s===s&&t.e===e))return;ct.push({s,e});renderCT()}
+function removeCT(i){ct.splice(i,1);renderCT()}
+function renderCT(){document.getElementById('ct-list').innerHTML=ct.map((t,i)=>`<button class="preset-btn active" onclick="removeCT(${i})">${t.s}-${t.e} ✕</button>`).join('')}
+function getTS(){const s=[];document.querySelectorAll('.preset-btn.active[data-s]').forEach(b=>s.push({s:b.dataset.s,e:b.dataset.e}));ct.forEach(t=>s.push(t));return s}
+
+function genPreview(){
+  const sd=new Date(document.getElementById('date-start').value+'T00:00:00'),ed=new Date(document.getElementById('date-end').value+'T00:00:00');
+  if(isNaN(sd)||isNaN(ed)||sd>ed){toast('⚠ 日付範囲を正しく設定');return false}
+  const ex=new Set;document.querySelectorAll('.day-toggle.excluded').forEach(e=>ex.add(+e.dataset.day));
+  const ts=getTS();if(!ts.length){toast('⚠ 時間帯を選択');return false}
+  const slots=[];const c=new Date(sd);
+  while(c<=ed){if(!ex.has(c.getDay())){const ds=iso(c);ts.forEach(t=>slots.push({d:ds,s:t.s,e:t.e,label:`${fmtD(ds)} ${t.s}~${t.e}`}))}c.setDate(c.getDate()+1)}
+  ev.slots=slots;removed=new Set;
+  document.getElementById('preview-area').innerHTML=`<div class="slot-count">生成候補: <strong>${slots.length}件</strong>（クリックで削除）</div><div class="slots-preview">${slots.map((s,i)=>`<span class="slot-chip" data-i="${i}" onclick="togSlot(${i})">${s.label}</span>`).join('')}</div>`;
+  return true
+}
+function togSlot(i){const c=document.querySelector(`.slot-chip[data-i="${i}"]`);if(removed.has(i)){removed.delete(i);c.classList.remove('removed')}else{removed.add(i);c.classList.add('removed')}}
+
+function createEvent(){
+  const name=document.getElementById('event-name').value.trim();
+  if(!name){toast('⚠ イベント名を入力');const i=document.getElementById('event-name');i.focus();i.classList.add('err');setTimeout(()=>i.classList.remove('err'),2000);return}
+  if(!ev.slots.length&&!genPreview())return;
+  const active=ev.slots.filter((_,i)=>!removed.has(i));
+  if(!active.length){toast('⚠ 有効な候補がありません');return}
+  ev.name=name;ev.memo=document.getElementById('event-memo').value.trim();ev.slots=active;ev.responses=[];
+
+  const payload=JSON.stringify({n:ev.name,m:ev.memo,s:ev.slots.map(sl=>`${sl.d}|${sl.s}|${sl.e}`)});
+  const enc=btoa(unescape(encodeURIComponent(payload)));
+  window._enc=enc;
+
+  let base;
+  try{base=location.origin+location.pathname;if(!base||base==='null'||base.includes('about:')||base.includes('blob:'))throw 0}catch(e){base='https://YOUR_USERNAME.github.io/quest-board/index.html'}
+  const url=base+'#e='+enc;
+  window._shareUrl=url;
+
+  // Show URL in the output area
+  const area=document.getElementById('url-area');
+  const ph=document.getElementById('url-placeholder');
+  const ut=document.getElementById('url-text');
+  const cb=document.getElementById('copy-btn');
+
+  ph.classList.add('hidden');
+  ut.classList.remove('hidden');
+  ut.textContent=url;
+  area.classList.add('has-url');
+  cb.classList.add('enabled');
+
+  document.getElementById('preview-respond-btn').style.display='flex';
+  toast('✦ 共有URLが生成されました！');
+
+  // Scroll to URL area
+  setTimeout(()=>area.scrollIntoView({behavior:'smooth',block:'center'}),200);
+}
+
+function copyUrl(){
+  const url=window._shareUrl;if(!url)return;
+  const cb=document.getElementById('copy-btn');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{cb.textContent='✓ コピー済';cb.classList.add('copied');toast('📋 URLをコピーしました！');setTimeout(()=>{cb.textContent='📋 コピー';cb.classList.remove('copied')},2000)}).catch(()=>fbCopy(url))
+  }else fbCopy(url)
+}
+function fbCopy(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('📋 コピーしました！')}catch(e){toast('⚠ コピー失敗')}document.body.removeChild(a)}
+
+function previewRespond(){
+  if(!window._enc)return;
+  loadEnc(window._enc);
+  document.getElementById('respond-section').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('respond-section').scrollIntoView({behavior:'smooth'}),100)
+}
+
+function loadHash(h){
+  if(!h.startsWith('#e='))return;
+  document.getElementById('create-section').classList.add('hidden');
+  document.getElementById('respond-section').classList.remove('hidden');
+  loadEnc(h.slice(3))
+}
+
+function loadEnc(enc){
+  try{
+    const j=decodeURIComponent(escape(atob(enc))),d=JSON.parse(j);
+    ev.name=d.n;ev.memo=d.m||'';
+    ev.slots=d.s.map(str=>{const[a,b,c]=str.split('|');return{d:a,s:b,e:c,label:`${fmtD(a)} ${b}~${c}`}});
+    sKey='rpg_'+enc.slice(0,20);
+    try{ev.responses=JSON.parse(localStorage.getItem(sKey)||'[]')}catch(e){ev.responses=[]}
+    document.getElementById('ev-name-display').textContent=ev.name;
+    if(ev.memo){document.getElementById('ev-memo-box').classList.remove('hidden');document.getElementById('ev-memo-display').textContent=ev.memo}
+    else document.getElementById('ev-memo-box').classList.add('hidden');
+    buildRT();if(ev.responses.length)buildRes()
+  }catch(e){console.error(e);toast('⚠ データ読み込み失敗')}
+}
+
+function buildRT(){
+  const th=document.getElementById('r-thead'),tb=document.getElementById('r-tbody');
+  let h='<tr><th>冒険者</th>';ev.slots.forEach(s=>{h+=`<th>${fmtD(s.d)}<br>${s.s}~${s.e}</th>`});h+='</tr>';th.innerHTML=h;
+  let r='<tr><td class="name-col" id="name-cell">？？？</td>';ev.slots.forEach((_,i)=>{r+=`<td data-slot="${i}" data-state="0" onclick="cyc(this)">-</td>`});r+='</tr>';tb.innerHTML=r
+}
+const ST=[{t:'-',c:''},{t:'◯',c:'sel-ok'},{t:'△',c:'sel-maybe'},{t:'✕',c:'sel-ng'}];
+function cyc(td){let n=(+td.dataset.state+1)%4;td.dataset.state=n;td.textContent=ST[n].t;td.className=ST[n].c}
+
+function submitResp(){
+  const name=document.getElementById('resp-name').value.trim();
+  if(!name){toast('⚠ 名前を入力');document.getElementById('resp-name').focus();return}
+  const cells=document.querySelectorAll('#r-tbody td[data-slot]'),ans=[];
+  cells.forEach(td=>ans.push(+td.dataset.state));
+  if(ans.every(a=>a===0)){toast('⚠ 少なくとも1つ回答');return}
+  ev.responses=ev.responses.filter(r=>r.name!==name);
+  ev.responses.push({name,answers:ans});
+  if(sKey)try{localStorage.setItem(sKey,JSON.stringify(ev.responses))}catch(e){}
+  buildRes();toast(`✦ ${name} の回答を記録！`)
+}
+
+function buildRes(){
+  if(!ev.responses.length)return;
+  const th=document.getElementById('res-thead'),tb=document.getElementById('res-tbody');
+  let h='<tr><th>冒険者</th>';ev.slots.forEach(s=>{h+=`<th>${fmtD(s.d)}<br>${s.s}~${s.e}</th>`});h+='</tr>';th.innerHTML=h;
+  let b='';ev.responses.forEach(r=>{b+=`<tr><td class="name-col">${esc(r.name)}</td>`;r.answers.forEach(a=>{const s=ST[a]||ST[0];b+=`<td class="${s.c}">${s.t}</td>`});b+='</tr>'});
+  b+='<tr><td class="name-col" style="background:var(--sunbeam);font-size:11px">◯合計</td>';
+  ev.slots.forEach((_,i)=>{const ok=ev.responses.filter(r=>r.answers[i]===1).length,tot=ev.responses.length,rat=tot?ok/tot:0;let bg='';if(rat>=.8)bg='background:#6db86b;color:#fff;';else if(rat>=.5)bg='background:#a8e6a8;';else if(rat>0)bg='background:#ffe4a0;';b+=`<td style="${bg}font-weight:bold">${ok}/${tot}</td>`});
+  b+='</tr>';tb.innerHTML=b;
+  document.getElementById('results-wrap').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('results-wrap').scrollIntoView({behavior:'smooth',block:'center'}),100)
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+document.addEventListener('input',e=>{if(e.target.id==='resp-name'){const c=document.getElementById('name-cell');if(c)c.textContent=e.target.value||'？？？'}});
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+</script>
+</body>
+</html>
